@@ -1,21 +1,21 @@
 --[[
-    Volvara UI
+    LibraryUI
     Interface library for Roblox executors.
 
     Built-in tabs : Settings / Config / About
     Config files  : .lua and .json only (anything else is rejected)
     Settings      : UI size, interface color, animations, effects, toggle key
 
-    Usage:
-        local Volvara = loadstring(readfile("VolvaraUI.lua"))()
-        local Window  = Volvara:CreateWindow({ Title = "Volvara UI" })
+    Usage (after hosting this file at a RAW URL):
+        local LibraryUI = loadstring(game:HttpGet("LINK"))()
+        local Window = LibraryUI:CreateWindow({ Title = "LibraryUI" })
 
         local Main = Window:AddTab("Main")
         Main:Toggle({ Name = "Example", Flag = "example", Callback = function(v) print(v) end })
 ]]
 
-if getgenv and getgenv().VolvaraUI then
-    pcall(function() getgenv().VolvaraUI:Destroy() end)
+if getgenv and getgenv().LibraryUI then
+    pcall(function() getgenv().LibraryUI:Destroy() end)
 end
 
 ----------------------------------------------------------------------
@@ -35,7 +35,7 @@ local LocalPlayer = Players.LocalPlayer
 ----------------------------------------------------------------------
 local DEFAULT_ACCENT = Color3.fromRGB(0, 72, 140)
 
-local Volvara = {
+local LibraryUI = {
     Version    = "1.0.0",
     Flags      = {},
     Setters    = {},
@@ -43,9 +43,9 @@ local Volvara = {
     Animations = true,
     AnimSpeed  = 1,
     ToggleKey  = Enum.KeyCode.RightShift,
-    Folder     = "VolvaraUI",
+    Folder     = "LibraryUI",
 }
-Volvara.ConfigFolder = Volvara.Folder .. "/configs"
+LibraryUI.ConfigFolder = LibraryUI.Folder .. "/configs"
 
 local SIZES = {
     Default = Vector2.new(560, 500),
@@ -76,7 +76,7 @@ local function safe(cb, ...)
     if type(cb) ~= "function" then return end
     task.spawn(function(...)
         local ok, err = pcall(cb, ...)
-        if not ok then warn("[Volvara] " .. tostring(err)) end
+        if not ok then warn("[LibraryUI] " .. tostring(err)) end
     end, ...)
 end
 
@@ -105,15 +105,15 @@ end
 
 local function bind(inst, prop, fn)
     themed[#themed + 1] = { inst = inst, prop = prop, fn = fn }
-    inst[prop] = fn(Volvara.Accent)
+    inst[prop] = fn(LibraryUI.Accent)
 end
 
 local function dur(t)
-    return (t or 0.2) / Volvara.AnimSpeed
+    return (t or 0.2) / LibraryUI.AnimSpeed
 end
 
 local function tween(inst, props, t, style, dir)
-    if not Volvara.Animations then
+    if not LibraryUI.Animations then
         for k, v in pairs(props) do inst[k] = v end
         return nil
     end
@@ -126,7 +126,7 @@ local function tween(inst, props, t, style, dir)
     return tw
 end
 
-function Volvara:SetAccent(color)
+function LibraryUI:SetAccent(color)
     local h, s, v = color:ToHSV()
     color = Color3.fromHSV(h, s, math.clamp(v, 0.35, 0.9))
     self.Accent = color
@@ -194,18 +194,18 @@ local function hoverable(btn, normal, hover, press, prop)
     local over = false
     btn.MouseEnter:Connect(function()
         over = true
-        tween(btn, { [prop] = hover(Volvara.Accent) }, 0.15)
+        tween(btn, { [prop] = hover(LibraryUI.Accent) }, 0.15)
     end)
     btn.MouseLeave:Connect(function()
         over = false
-        tween(btn, { [prop] = normal(Volvara.Accent) }, 0.2)
+        tween(btn, { [prop] = normal(LibraryUI.Accent) }, 0.2)
     end)
     if press then
         btn.MouseButton1Down:Connect(function()
-            tween(btn, { [prop] = press(Volvara.Accent) }, 0.08)
+            tween(btn, { [prop] = press(LibraryUI.Accent) }, 0.08)
         end)
         btn.MouseButton1Up:Connect(function()
-            tween(btn, { [prop] = (over and hover or normal)(Volvara.Accent) }, 0.15)
+            tween(btn, { [prop] = (over and hover or normal)(LibraryUI.Accent) }, 0.15)
         end)
     end
 end
@@ -257,7 +257,7 @@ end
 local toastHolder
 
 local function ensureGui()
-    if Volvara.Gui and Volvara.Gui.Parent then return Volvara.Gui end
+    if LibraryUI.Gui and LibraryUI.Gui.Parent then return LibraryUI.Gui end
     local gui = new("ScreenGui", {
         Name = HttpService:GenerateGUID(false),
         ResetOnSpawn = false,
@@ -266,7 +266,7 @@ local function ensureGui()
     })
     if syn and syn.protect_gui then pcall(syn.protect_gui, gui) end
     gui.Parent = getGuiParent()
-    Volvara.Gui = gui
+    LibraryUI.Gui = gui
 
     toastHolder = new("Frame", {
         Name = "Toasts",
@@ -291,7 +291,7 @@ local KIND_COLOR = {
     Warn    = Color3.fromRGB(240, 180, 60),
 }
 
-function Volvara:Notify(opts)
+function LibraryUI:Notify(opts)
     opts = opts or {}
     ensureGui()
     local wrap = new("Frame", {
@@ -324,7 +324,7 @@ function Volvara:Notify(opts)
     end
 
     label({
-        Text = opts.Title or "Volvara", Font = FONT_BOLD, TextSize = 13,
+        Text = opts.Title or "LibraryUI", Font = FONT_BOLD, TextSize = 13,
         Position = UDim2.new(0, 20, 0, 7), Size = UDim2.new(1, -28, 0, 16), Parent = inner,
     })
     local msg = label({
@@ -356,8 +356,8 @@ function FS.available()
 end
 
 local function ensureFolders()
-    if not isfolder(Volvara.Folder) then makefolder(Volvara.Folder) end
-    if not isfolder(Volvara.ConfigFolder) then makefolder(Volvara.ConfigFolder) end
+    if not isfolder(LibraryUI.Folder) then makefolder(LibraryUI.Folder) end
+    if not isfolder(LibraryUI.ConfigFolder) then makefolder(LibraryUI.ConfigFolder) end
 end
 
 local function encode(v)
@@ -406,7 +406,7 @@ end
 
 local function snapshot()
     local data = { version = 1, flags = {} }
-    for flag, value in pairs(Volvara.Flags) do
+    for flag, value in pairs(LibraryUI.Flags) do
         data.flags[flag] = encode(value)
     end
     return data
@@ -424,15 +424,15 @@ local function validFile(filename)
     return e == "lua" or e == "json"
 end
 
-function Volvara:ConfigPath(filename)
+function LibraryUI:ConfigPath(filename)
     return self.ConfigFolder .. "/" .. filename
 end
 
-function Volvara:ConfigExists(filename)
+function LibraryUI:ConfigExists(filename)
     return FS.available() and isfile(self:ConfigPath(filename))
 end
 
-function Volvara:ListConfigs()
+function LibraryUI:ListConfigs()
     local names = {}
     if not FS.available() then return names end
     ensureFolders()
@@ -446,7 +446,7 @@ function Volvara:ListConfigs()
     return names
 end
 
-function Volvara:SaveConfig(filename)
+function LibraryUI:SaveConfig(filename)
     if not FS.available() then return false, "File functions not supported by this executor" end
     if not validFile(filename) then return false, "Only .lua and .json configs are allowed" end
     local ok, err = pcall(function()
@@ -456,7 +456,7 @@ function Volvara:SaveConfig(filename)
         if extOf(filename) == "json" then
             out = HttpService:JSONEncode(data)
         else
-            out = "-- Volvara UI config\nreturn " .. serialize(data) .. "\n"
+            out = "-- LibraryUI config\nreturn " .. serialize(data) .. "\n"
         end
         writefile(self:ConfigPath(filename), out)
     end)
@@ -464,7 +464,7 @@ function Volvara:SaveConfig(filename)
     return true
 end
 
-function Volvara:LoadConfig(filename)
+function LibraryUI:LoadConfig(filename)
     if not FS.available() then return false, "File functions not supported by this executor" end
     if not validFile(filename) then return false, "Only .lua and .json configs are allowed" end
     if not isfile(self:ConfigPath(filename)) then return false, "Config not found" end
@@ -497,7 +497,7 @@ function Volvara:LoadConfig(filename)
     return true
 end
 
-function Volvara:DeleteConfig(filename)
+function LibraryUI:DeleteConfig(filename)
     if not FS.available() or type(delfile) ~= "function" then
         return false, "delfile is not supported by this executor"
     end
@@ -507,7 +507,7 @@ function Volvara:DeleteConfig(filename)
     return true
 end
 
-function Volvara:CreateConfig(raw, defaultExt)
+function LibraryUI:CreateConfig(raw, defaultExt)
     raw = (raw or ""):gsub("^%s+", ""):gsub("%s+$", "")
     if raw == "" then return nil, "Enter a config name" end
 
@@ -558,8 +558,8 @@ end
 
 local function register(flag, value, setter)
     if not flag then return end
-    Volvara.Flags[flag] = value
-    Volvara.Setters[flag] = setter
+    LibraryUI.Flags[flag] = value
+    LibraryUI.Setters[flag] = setter
 end
 
 function Tab:Section(text)
@@ -663,14 +663,14 @@ function Tab:Toggle(opts)
 
     local function set(v, silent)
         state = v and true or false
-        tween(pill, { BackgroundColor3 = pillColor(Volvara.Accent) }, 0.2)
+        tween(pill, { BackgroundColor3 = pillColor(LibraryUI.Accent) }, 0.2)
         tween(knob, { Position = state and UDim2.new(0, 21, 0.5, 0) or UDim2.new(0, 3, 0.5, 0) }, 0.22, Enum.EasingStyle.Back)
-        if opts.Flag then Volvara.Flags[opts.Flag] = state end
+        if opts.Flag then LibraryUI.Flags[opts.Flag] = state end
         if not silent then safe(opts.Callback, state) end
     end
 
-    click.MouseEnter:Connect(function() tween(r, { BackgroundColor3 = Shade.RowHover(Volvara.Accent) }, 0.15) end)
-    click.MouseLeave:Connect(function() tween(r, { BackgroundColor3 = Shade.Row(Volvara.Accent) }, 0.2) end)
+    click.MouseEnter:Connect(function() tween(r, { BackgroundColor3 = Shade.RowHover(LibraryUI.Accent) }, 0.15) end)
+    click.MouseLeave:Connect(function() tween(r, { BackgroundColor3 = Shade.Row(LibraryUI.Accent) }, 0.2) end)
     click.MouseButton1Click:Connect(function() set(not state) end)
 
     register(opts.Flag, state, function(v) set(v) end)
@@ -718,7 +718,7 @@ function Tab:Slider(opts)
         tween(fill, { Size = UDim2.fromScale(a, 1) }, 0.08, Enum.EasingStyle.Sine)
         tween(knob, { Position = UDim2.fromScale(a, 0.5) }, 0.08, Enum.EasingStyle.Sine)
         valLabel.Text = tostring(v) .. suffix
-        if opts.Flag then Volvara.Flags[opts.Flag] = v end
+        if opts.Flag then LibraryUI.Flags[opts.Flag] = v end
         if not silent then safe(opts.Callback, v) end
     end
 
@@ -804,13 +804,13 @@ function Tab:Dropdown(opts)
         if v == nil or not table.find(options, v) then return end
         selected = v
         valLabel.Text = tostring(v)
-        if opts.Flag then Volvara.Flags[opts.Flag] = v end
+        if opts.Flag then LibraryUI.Flags[opts.Flag] = v end
         build()
         if not silent then safe(opts.Callback, v) end
     end
 
-    head.MouseEnter:Connect(function() tween(r, { BackgroundColor3 = Shade.RowHover(Volvara.Accent) }, 0.15) end)
-    head.MouseLeave:Connect(function() tween(r, { BackgroundColor3 = Shade.Row(Volvara.Accent) }, 0.2) end)
+    head.MouseEnter:Connect(function() tween(r, { BackgroundColor3 = Shade.RowHover(LibraryUI.Accent) }, 0.15) end)
+    head.MouseLeave:Connect(function() tween(r, { BackgroundColor3 = Shade.Row(LibraryUI.Accent) }, 0.2) end)
     head.MouseButton1Click:Connect(function()
         open = not open
         tween(r, { Size = UDim2.new(1, 0, 0, open and openHeight() or HEAD) }, 0.28)
@@ -818,7 +818,7 @@ function Tab:Dropdown(opts)
     end)
 
     build()
-    if opts.Flag then Volvara.Flags[opts.Flag] = selected end
+    if opts.Flag then LibraryUI.Flags[opts.Flag] = selected end
     register(opts.Flag, selected, function(v) set(v) end)
     return {
         Set = function(_, v) set(v) end,
@@ -848,10 +848,10 @@ function Tab:Input(opts)
     padding(box, 8, 0, 8, 0)
     local s = stroke(box, Shade.Line, 0.8)
 
-    box.Focused:Connect(function() tween(s, { Color = Shade.Hover(Volvara.Accent), Transparency = 0.2 }, 0.15) end)
+    box.Focused:Connect(function() tween(s, { Color = Shade.Hover(LibraryUI.Accent), Transparency = 0.2 }, 0.15) end)
     box.FocusLost:Connect(function(enter)
-        tween(s, { Color = Shade.Line(Volvara.Accent), Transparency = 0.8 }, 0.2)
-        if opts.Flag then Volvara.Flags[opts.Flag] = box.Text end
+        tween(s, { Color = Shade.Line(LibraryUI.Accent), Transparency = 0.8 }, 0.2)
+        if opts.Flag then LibraryUI.Flags[opts.Flag] = box.Text end
         safe(opts.Callback, box.Text, enter)
     end)
 
@@ -881,21 +881,21 @@ function Tab:Keybind(opts)
         if typeof(k) ~= "EnumItem" then return end
         key = k
         btn.Text = k.Name
-        if opts.Flag then Volvara.Flags[opts.Flag] = k end
+        if opts.Flag then LibraryUI.Flags[opts.Flag] = k end
         if not silent then safe(opts.Callback, k) end
     end
 
     btn.MouseButton1Click:Connect(function()
         if listening then return end
         listening = true
-        Volvara._binding = true
+        LibraryUI._binding = true
         btn.Text = "..."
         local conn
         conn = UserInputService.InputBegan:Connect(function(input)
             if input.UserInputType == Enum.UserInputType.Keyboard then
                 conn:Disconnect()
                 listening = false
-                task.defer(function() Volvara._binding = false end)
+                task.defer(function() LibraryUI._binding = false end)
                 if input.KeyCode ~= Enum.KeyCode.Escape then
                     set(input.KeyCode)
                 else
@@ -972,7 +972,7 @@ function Tab:ColorPicker(opts)
         svKnob.Position = UDim2.fromScale(s, 1 - v)
         hueKnob.Position = UDim2.fromScale(0.5, h)
         hex.Text = toHex(c)
-        if opts.Flag then Volvara.Flags[opts.Flag] = c end
+        if opts.Flag then LibraryUI.Flags[opts.Flag] = c end
         if not silent then safe(opts.Callback, c) end
     end
 
@@ -1144,14 +1144,14 @@ end
 
 function Window:Close()
     self:SetVisible(false)
-    task.delay(dur(0.25), function() Volvara:Destroy() end)
+    task.delay(dur(0.25), function() LibraryUI:Destroy() end)
 end
 
 function Window:Select(tab)
     if self.Active == tab then return end
     local prev = self.Active
     self.Active = tab
-    local acc = Volvara.Accent
+    local acc = LibraryUI.Accent
 
     if prev then
         tween(prev.Button, { BackgroundColor3 = acc }, 0.2)
@@ -1196,13 +1196,13 @@ function Window:AddTab(name, order)
     tab.Button, tab.Indicator = btn, ind
 
     btn.MouseEnter:Connect(function()
-        if self.Active ~= tab then tween(btn, { BackgroundColor3 = Volvara.Accent:Lerp(WHITE, 0.08) }, 0.15) end
+        if self.Active ~= tab then tween(btn, { BackgroundColor3 = LibraryUI.Accent:Lerp(WHITE, 0.08) }, 0.15) end
     end)
     btn.MouseLeave:Connect(function()
-        if self.Active ~= tab then tween(btn, { BackgroundColor3 = Volvara.Accent }, 0.2) end
+        if self.Active ~= tab then tween(btn, { BackgroundColor3 = LibraryUI.Accent }, 0.2) end
     end)
     btn.MouseButton1Down:Connect(function()
-        tween(btn, { BackgroundColor3 = Shade.Press(Volvara.Accent) }, 0.08)
+        tween(btn, { BackgroundColor3 = Shade.Press(LibraryUI.Accent) }, 0.08)
     end)
     btn.MouseButton1Click:Connect(function() self:Select(tab) end)
 
@@ -1248,14 +1248,14 @@ local function buildSettings(win)
         Callback = function(v) win:SetSize(v) end,
     })
     t:Keybind({
-        Name = "Toggle Key", Default = Volvara.ToggleKey, Flag = "ui.togglekey",
-        Callback = function(k) Volvara.ToggleKey = k end,
+        Name = "Toggle Key", Default = LibraryUI.ToggleKey, Flag = "ui.togglekey",
+        Callback = function(k) LibraryUI.ToggleKey = k end,
     })
 
     t:Section("Appearance")
     local picker = t:ColorPicker({
-        Name = "Interface Color", Default = Volvara.Accent, Flag = "ui.accent",
-        Callback = function(c) Volvara:SetAccent(c) end,
+        Name = "Interface Color", Default = LibraryUI.Accent, Flag = "ui.accent",
+        Callback = function(c) LibraryUI:SetAccent(c) end,
     })
     t:Swatches({
         Colors = PRESETS,
@@ -1265,12 +1265,12 @@ local function buildSettings(win)
     t:Section("Effects")
     t:Toggle({
         Name = "Animations", Default = true, Flag = "ui.animations",
-        Callback = function(v) Volvara.Animations = v end,
+        Callback = function(v) LibraryUI.Animations = v end,
     })
     t:Slider({
         Name = "Animation Speed", Min = 0.5, Max = 2, Default = 1, Increment = 0.1,
         Suffix = "x", Flag = "ui.animspeed",
-        Callback = function(v) Volvara.AnimSpeed = v end,
+        Callback = function(v) LibraryUI.AnimSpeed = v end,
     })
     t:Toggle({
         Name = "Animated Background", Default = true, Flag = "ui.bgfx",
@@ -1294,9 +1294,9 @@ local function buildSettings(win)
                 ["ui.togglekey"] = Enum.KeyCode.RightShift,
             }
             for flag, value in pairs(defaults) do
-                if Volvara.Setters[flag] then Volvara.Setters[flag](value) end
+                if LibraryUI.Setters[flag] then LibraryUI.Setters[flag](value) end
             end
-            Volvara:Notify({ Title = "Settings", Text = "Interface reset to defaults", Type = "Success" })
+            LibraryUI:Notify({ Title = "Settings", Text = "Interface reset to defaults", Type = "Success" })
         end },
         { "Unload UI", function() win:Close() end },
     })
@@ -1311,7 +1311,7 @@ local function buildConfig(win)
 
     local list
     local function refresh()
-        list:SetItems(Volvara:ListConfigs())
+        list:SetItems(LibraryUI:ListConfigs())
     end
 
     if not FS.available() then
@@ -1325,16 +1325,16 @@ local function buildConfig(win)
         Callback = function(v) format = v end,
     })
     t:Button("Create Config", function()
-        local filename, err = Volvara:CreateConfig(nameBox:Get(), format)
+        local filename, err = LibraryUI:CreateConfig(nameBox:Get(), format)
         if not filename then
-            Volvara:Notify({ Title = "Config", Text = err, Type = "Error" })
+            LibraryUI:Notify({ Title = "Config", Text = err, Type = "Error" })
             return
         end
         nameBox:Clear()
         refresh()
         list:Select(filename)
         selected = filename
-        Volvara:Notify({ Title = "Config", Text = "Created " .. filename, Type = "Success" })
+        LibraryUI:Notify({ Title = "Config", Text = "Created " .. filename, Type = "Success" })
     end)
 
     t:Section("Saved Configs")
@@ -1349,47 +1349,47 @@ local function buildConfig(win)
     t:ButtonRow({
         { "Save", function()
             if not selected then
-                Volvara:Notify({ Title = "Config", Text = "Select a config first", Type = "Warn" })
+                LibraryUI:Notify({ Title = "Config", Text = "Select a config first", Type = "Warn" })
                 return
             end
-            local ok, err = Volvara:SaveConfig(selected)
-            Volvara:Notify({
+            local ok, err = LibraryUI:SaveConfig(selected)
+            LibraryUI:Notify({
                 Title = "Config", Type = ok and "Success" or "Error",
                 Text = ok and ("Saved " .. selected) or err,
             })
         end },
         { "Load", function()
             if not selected then
-                Volvara:Notify({ Title = "Config", Text = "Select a config first", Type = "Warn" })
+                LibraryUI:Notify({ Title = "Config", Text = "Select a config first", Type = "Warn" })
                 return
             end
-            local ok, err = Volvara:LoadConfig(selected)
-            Volvara:Notify({
+            local ok, err = LibraryUI:LoadConfig(selected)
+            LibraryUI:Notify({
                 Title = "Config", Type = ok and "Success" or "Error",
                 Text = ok and ("Loaded " .. selected) or err,
             })
         end },
         { "Delete", function()
             if not selected then
-                Volvara:Notify({ Title = "Config", Text = "Select a config first", Type = "Warn" })
+                LibraryUI:Notify({ Title = "Config", Text = "Select a config first", Type = "Warn" })
                 return
             end
             if pendingDelete ~= selected then
                 pendingDelete = selected
-                Volvara:Notify({ Title = "Config", Text = "Press Delete again to remove " .. selected, Type = "Warn" })
+                LibraryUI:Notify({ Title = "Config", Text = "Press Delete again to remove " .. selected, Type = "Warn" })
                 task.delay(3, function()
                     if pendingDelete == selected then pendingDelete = nil end
                 end)
                 return
             end
             pendingDelete = nil
-            local ok, err = Volvara:DeleteConfig(selected)
+            local ok, err = LibraryUI:DeleteConfig(selected)
             if ok then
-                Volvara:Notify({ Title = "Config", Text = "Deleted " .. selected, Type = "Success" })
+                LibraryUI:Notify({ Title = "Config", Text = "Deleted " .. selected, Type = "Success" })
                 selected = nil
                 refresh()
             else
-                Volvara:Notify({ Title = "Config", Text = err, Type = "Error" })
+                LibraryUI:Notify({ Title = "Config", Text = err, Type = "Error" })
             end
         end },
     })
@@ -1402,7 +1402,7 @@ end
 local function buildAbout(win)
     local t = win:AddTab("About", 1003)
 
-    t:Section("Volvara UI")
+    t:Section("LibraryUI")
     t:Label("Interface library with tabs, config profiles and a fully themeable window.")
 
     t:Section("Session")
@@ -1411,10 +1411,10 @@ local function buildAbout(win)
         local ok, name = pcall(identifyexecutor)
         if ok and name then executor = tostring(name) end
     end
-    t:Info("Version", Volvara.Version)
+    t:Info("Version", LibraryUI.Version)
     t:Info("Executor", executor)
-    local keyInfo = t:Info("Toggle Key", Volvara.ToggleKey.Name)
-    t:Info("Config Folder", Volvara.ConfigFolder)
+    local keyInfo = t:Info("Toggle Key", LibraryUI.ToggleKey.Name)
+    t:Info("Config Folder", LibraryUI.ConfigFolder)
     local upInfo = t:Info("Uptime", "0:00")
     local fpsInfo = t:Info("FPS", "--")
 
@@ -1427,7 +1427,7 @@ local function buildAbout(win)
             local s = math.floor(os.clock() - startClock)
             upInfo:Set(string.format("%d:%02d", math.floor(s / 60), s % 60))
             fpsInfo:Set(tostring(win.FPS))
-            keyInfo:Set(Volvara.ToggleKey.Name)
+            keyInfo:Set(LibraryUI.ToggleKey.Name)
         end
     end)
     return t
@@ -1436,7 +1436,7 @@ end
 ----------------------------------------------------------------------
 -- CreateWindow
 ----------------------------------------------------------------------
-function Volvara:CreateWindow(opts)
+function LibraryUI:CreateWindow(opts)
     opts = opts or {}
     local gui = ensureGui()
 
@@ -1483,7 +1483,7 @@ function Volvara:CreateWindow(opts)
     })
     bind(titlebar, "BackgroundColor3", Shade.Top)
     label({
-        Text = opts.Title or "Volvara UI", Font = FONT_BOLD, TextSize = 15,
+        Text = opts.Title or "LibraryUI", Font = FONT_BOLD, TextSize = 15,
         Position = UDim2.fromOffset(14, 0), Size = UDim2.new(1, -90, 1, 0), Parent = titlebar,
     })
 
@@ -1518,7 +1518,7 @@ function Volvara:CreateWindow(opts)
         Size = UDim2.fromOffset(14, 2), BackgroundColor3 = WHITE, BorderSizePixel = 0, Parent = minBtn,
     })
     minBtn.MouseEnter:Connect(function()
-        tween(minLine, { BackgroundColor3 = Shade.Muted(Volvara.Accent), Size = UDim2.fromOffset(16, 2) }, 0.15)
+        tween(minLine, { BackgroundColor3 = Shade.Muted(LibraryUI.Accent), Size = UDim2.fromOffset(16, 2) }, 0.15)
     end)
     minBtn.MouseLeave:Connect(function()
         tween(minLine, { BackgroundColor3 = WHITE, Size = UDim2.fromOffset(14, 2) }, 0.2)
@@ -1590,15 +1590,15 @@ function Volvara:CreateWindow(opts)
             win.FPS = math.floor(frames / fpsAcc + 0.5)
             frames, fpsAcc = 0, 0
         end
-        if win.BgFx and win.Visible and Volvara.Animations then
-            grad.Rotation = 90 + math.sin(t * 0.5 * Volvara.AnimSpeed) * 22
+        if win.BgFx and win.Visible and LibraryUI.Animations then
+            grad.Rotation = 90 + math.sin(t * 0.5 * LibraryUI.AnimSpeed) * 22
         end
     end)
 
     -- toggle key
     connect(UserInputService.InputBegan, function(input, processed)
-        if processed or Volvara._binding then return end
-        if input.KeyCode == Volvara.ToggleKey then
+        if processed or LibraryUI._binding then return end
+        if input.KeyCode == LibraryUI.ToggleKey then
             win:SetVisible(not win.Visible)
         end
     end)
@@ -1611,11 +1611,11 @@ function Volvara:CreateWindow(opts)
     end)
 
     win:SetVisible(true)
-    Volvara.Window = win
+    LibraryUI.Window = win
     return win
 end
 
-function Volvara:Destroy()
+function LibraryUI:Destroy()
     for _, c in ipairs(connections) do
         pcall(function() c:Disconnect() end)
     end
@@ -1627,9 +1627,9 @@ function Volvara:Destroy()
         self.Gui = nil
     end
     self.Window = nil
-    if getgenv and getgenv().VolvaraUI == self then getgenv().VolvaraUI = nil end
+    if getgenv and getgenv().LibraryUI == self then getgenv().LibraryUI = nil end
 end
 
-if getgenv then getgenv().VolvaraUI = Volvara end
+if getgenv then getgenv().LibraryUI = LibraryUI end
 
-return Volvara
+return LibraryUI
