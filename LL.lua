@@ -3,8 +3,8 @@
     Interface library for Roblox executors.
 
     Built-in tabs : Settings / Config / About
-    Config files  : .lua and .json only (anything else is rejected)
-    Settings      : UI size, interface color, animations, effects, toggle key
+    Config files : .lua and .json only (anything else is rejected)
+    Settings : UI size, interface color, animations, effects, toggle key
 
     Usage (after hosting this file at a RAW URL):
         local LibraryUI = loadstring(game:HttpGet("LINK"))()
@@ -21,11 +21,11 @@ end
 ----------------------------------------------------------------------
 -- Services
 ----------------------------------------------------------------------
-local Players          = game:GetService("Players")
-local TweenService     = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService      = game:GetService("HttpService")
-local RunService       = game:GetService("RunService")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 if not LocalPlayer then
@@ -39,35 +39,35 @@ end
 local DEFAULT_ACCENT = Color3.fromRGB(0, 72, 140)
 
 local LibraryUI = {
-    Version    = "1.0.0",
-    Flags      = {},
-    Setters    = {},
-    Accent     = DEFAULT_ACCENT,
+    Version = "1.0.0",
+    Flags = {},
+    Setters = {},
+    Accent = DEFAULT_ACCENT,
     Animations = true,
-    AnimSpeed  = 1,
-    ToggleKey  = Enum.KeyCode.RightShift,
-    Folder     = "LibraryUI",
+    AnimSpeed = 1,
+    ToggleKey = Enum.KeyCode.RightShift,
+    Folder = "LibraryUI",
 }
 LibraryUI.ConfigFolder = LibraryUI.Folder .. "/configs"
 
 local SIZES = {
     Default = Vector2.new(560, 500),
-    Small   = Vector2.new(440, 400),
-    Medium  = Vector2.new(620, 540),
-    Large   = Vector2.new(720, 600),
-    Big     = Vector2.new(860, 680),
+    Small = Vector2.new(440, 400),
+    Medium = Vector2.new(620, 540),
+    Large = Vector2.new(720, 600),
+    Big = Vector2.new(860, 680),
 }
 local SIZE_ORDER = { "Default", "Small", "Medium", "Large", "Big" }
 
 local TITLE_H = 36
-local FONT      = Enum.Font.Gotham
+local FONT = Enum.Font.Gotham
 local FONT_BOLD = Enum.Font.GothamBold
 local BLACK, WHITE = Color3.new(0, 0, 0), Color3.new(1, 1, 1)
 
 local connections = {}
-local themed      = {}
-local gradients   = {}
-local startClock  = os.clock()
+local themed = {}
+local gradients = {}
+local startClock = os.clock()
 
 local function connect(signal, fn)
     local c = signal:Connect(fn)
@@ -87,19 +87,19 @@ end
 -- Theme
 ----------------------------------------------------------------------
 local Shade = {
-    Top      = function(a) return a:Lerp(BLACK, 0.90) end,
-    Base     = function(a) return a:Lerp(BLACK, 0.80) end,
-    Side     = function(a) return a:Lerp(BLACK, 0.74) end,
-    Panel    = function(a) return a:Lerp(BLACK, 0.66) end,
-    Row      = function(a) return a:Lerp(BLACK, 0.52) end,
+    Top = function(a) return a:Lerp(BLACK, 0.90) end,
+    Base = function(a) return a:Lerp(BLACK, 0.80) end,
+    Side = function(a) return a:Lerp(BLACK, 0.74) end,
+    Panel = function(a) return a:Lerp(BLACK, 0.66) end,
+    Row = function(a) return a:Lerp(BLACK, 0.52) end,
     RowHover = function(a) return a:Lerp(BLACK, 0.42) end,
-    Accent   = function(a) return a end,
-    Hover    = function(a) return a:Lerp(WHITE, 0.14) end,
-    Press    = function(a) return a:Lerp(BLACK, 0.25) end,
-    Light    = function(a) return a:Lerp(WHITE, 0.18) end,
-    Line     = function(a) return a:Lerp(WHITE, 0.25) end,
-    Muted    = function(a) return a:Lerp(WHITE, 0.62) end,
-    Off      = function(a) return a:Lerp(BLACK, 0.68) end,
+    Accent = function(a) return a end,
+    Hover = function(a) return a:Lerp(WHITE, 0.14) end,
+    Press = function(a) return a:Lerp(BLACK, 0.25) end,
+    Light = function(a) return a:Lerp(WHITE, 0.18) end,
+    Line = function(a) return a:Lerp(WHITE, 0.25) end,
+    Muted = function(a) return a:Lerp(WHITE, 0.62) end,
+    Off = function(a) return a:Lerp(BLACK, 0.68) end,
 }
 
 local function windowGradient(a)
@@ -305,8 +305,8 @@ end
 
 local KIND_COLOR = {
     Success = Color3.fromRGB(70, 200, 120),
-    Error   = Color3.fromRGB(230, 80, 80),
-    Warn    = Color3.fromRGB(240, 180, 60),
+    Error = Color3.fromRGB(230, 80, 80),
+    Warn = Color3.fromRGB(240, 180, 60),
 }
 
 function LibraryUI:Notify(opts)
@@ -1247,14 +1247,14 @@ end
 -- Built-in tabs
 ----------------------------------------------------------------------
 local PRESETS = {
-    { "Blue",    Color3.fromRGB(0, 72, 140) },
-    { "Violet",  Color3.fromRGB(96, 52, 170) },
+    { "Blue", Color3.fromRGB(0, 72, 140) },
+    { "Violet", Color3.fromRGB(96, 52, 170) },
     { "Crimson", Color3.fromRGB(160, 32, 60) },
     { "Emerald", Color3.fromRGB(0, 128, 96) },
-    { "Amber",   Color3.fromRGB(176, 112, 0) },
-    { "Rose",    Color3.fromRGB(176, 48, 120) },
-    { "Cyan",    Color3.fromRGB(0, 128, 150) },
-    { "Slate",   Color3.fromRGB(60, 72, 92) },
+    { "Amber", Color3.fromRGB(176, 112, 0) },
+    { "Rose", Color3.fromRGB(176, 48, 120) },
+    { "Cyan", Color3.fromRGB(0, 128, 150) },
+    { "Slate", Color3.fromRGB(60, 72, 92) },
 }
 
 local function buildSettings(win)
