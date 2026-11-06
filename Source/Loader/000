@@ -21,13 +21,17 @@ end
 ----------------------------------------------------------------------
 -- Services
 ----------------------------------------------------------------------
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
+local Players          = game:GetService("Players")
+local TweenService     = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
+local HttpService      = game:GetService("HttpService")
+local RunService       = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
+if not LocalPlayer then
+    Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    LocalPlayer = Players.LocalPlayer
+end
 
 ----------------------------------------------------------------------
 -- Library state
@@ -243,8 +247,39 @@ end
 ----------------------------------------------------------------------
 -- GUI root + notifications
 ----------------------------------------------------------------------
-local function getGuiParent()
-    return LocalPlayer:WaitForChild("PlayerGui")
+-- Tries the safest container first (gethui -> CoreGui -> PlayerGui).
+-- Each candidate is tested with pcall, so a CoreGui permission error
+-- no longer breaks the library: it just falls through to the next one.
+local function mountGui(gui)
+    local candidates = {}
+
+    if type(gethui) == "function" then
+        candidates[#candidates + 1] = function() return gethui() end
+    end
+    candidates[#candidates + 1] = function()
+        return game:GetService("CoreGui")
+    end
+    candidates[#candidates + 1] = function()
+        return LocalPlayer:WaitForChild("PlayerGui", 10)
+    end
+
+    -- old Synapse-style protection (harmless if missing)
+    if syn and type(syn.protect_gui) == "function" then
+        pcall(syn.protect_gui, gui)
+    elseif type(protect_gui) == "function" then
+        pcall(protect_gui, gui)
+    end
+
+    for _, getParent in ipairs(candidates) do
+        local okGet, parent = pcall(getParent)
+        if okGet and parent then
+            local okSet = pcall(function() gui.Parent = parent end)
+            if okSet and gui.Parent == parent then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 local toastHolder
@@ -254,10 +289,13 @@ local function ensureGui()
     local gui = new("ScreenGui", {
         Name = HttpService:GenerateGUID(false),
         ResetOnSpawn = false,
+        IgnoreGuiInset = true,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         DisplayOrder = 999,
     })
-    gui.Parent = getGuiParent()
+    if not mountGui(gui) then
+        error("[LibraryUI] Could not parent the GUI (gethui, CoreGui and PlayerGui all failed)")
+    end
     LibraryUI.Gui = gui
 
     toastHolder = new("Frame", {
@@ -1458,12 +1496,18 @@ function LibraryUI:CreateWindow(opts)
         Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.new(1, 44, 1, 44), ZIndex = 0, Parent = holder,
     })
     local main = new("CanvasGroup", {
-        Name = "Main", Size = UDim2.fromScale(1, 1), BackgroundColor3 = WHITE,
+        Name = "Main", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
         BorderSizePixel = 0, GroupTransparency = 1, Parent = holder,
     })
     corner(main, 7)
     stroke(main, Shade.Line, 0.75)
-    local grad = new("UIGradient", { Rotation = 90, Color = windowGradient(self.Accent), Parent = main })
+    -- gradient lives on its own frame: a UIGradient directly on a CanvasGroup
+    -- would tint every child (text, buttons...) and make the UI look dark/broken
+    local bg = new("Frame", {
+        Name = "Background", Size = UDim2.fromScale(1, 1), BackgroundColor3 = WHITE,
+        BorderSizePixel = 0, ZIndex = 0, Parent = main,
+    })
+    local grad = new("UIGradient", { Rotation = 90, Color = windowGradient(self.Accent), Parent = bg })
     gradients[#gradients + 1] = { inst = grad, fn = windowGradient }
 
     win.Holder, win.Scale, win.Shadow, win.Main, win.Gradient = holder, scale, shadow, main, grad
