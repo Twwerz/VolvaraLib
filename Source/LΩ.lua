@@ -247,36 +247,24 @@ end
 ----------------------------------------------------------------------
 -- GUI root + notifications
 ----------------------------------------------------------------------
--- Tries the safest container first (gethui -> CoreGui -> PlayerGui).
--- Each candidate is tested with pcall, so a CoreGui permission error
--- no longer breaks the library: it just falls through to the next one.
+-- Mounts the GUI in PlayerGui.
 local function mountGui(gui)
-    local candidates = {}
-
-    if type(gethui) == "function" then
-        candidates[#candidates + 1] = function() return gethui() end
-    end
-    candidates[#candidates + 1] = function()
-        return game:GetService("CoreGui")
-    end
-    candidates[#candidates + 1] = function()
-        return LocalPlayer:WaitForChild("PlayerGui", 10)
-    end
-
-    -- old Synapse-style protection (harmless if missing)
-    if syn and type(syn.protect_gui) == "function" then
-        pcall(syn.protect_gui, gui)
-    elseif type(protect_gui) == "function" then
-        pcall(protect_gui, gui)
-    end
+    -- PlayerGui only (no CoreGui / gethui)
+    local candidates = {
+        function() return LocalPlayer:WaitForChild("PlayerGui", 10) end,
+    }
 
     for _, getParent in ipairs(candidates) do
         local okGet, parent = pcall(getParent)
         if okGet and parent then
-            local okSet = pcall(function() gui.Parent = parent end)
+            local okSet, errSet = pcall(function() gui.Parent = parent end)
             if okSet and gui.Parent == parent then
+                LibraryUI.MountedIn = parent:GetFullName()
                 return true
             end
+            warn("[LibraryUI] parent failed (" .. tostring(parent) .. "): " .. tostring(errSet))
+        else
+            warn("[LibraryUI] could not get a parent: " .. tostring(parent))
         end
     end
     return false
@@ -1466,7 +1454,7 @@ end
 ----------------------------------------------------------------------
 -- CreateWindow
 ----------------------------------------------------------------------
-function LibraryUI:CreateWindow(opts)
+function LibraryUI:_CreateWindow(opts)
     opts = opts or {}
     local gui = ensureGui()
 
@@ -1649,6 +1637,18 @@ function LibraryUI:CreateWindow(opts)
     win:SetVisible(true)
     LibraryUI.Window = win
     return win
+end
+
+function LibraryUI:CreateWindow(opts)
+    local ok, res = xpcall(function() return self:_CreateWindow(opts) end, function(e)
+        return tostring(e) .. "\n" .. debug.traceback()
+    end)
+    if not ok then
+        warn("[LibraryUI] CreateWindow failed:\n" .. tostring(res))
+        error(res, 0)
+    end
+    print("[LibraryUI] window created, mounted in: " .. tostring(self.MountedIn))
+    return res
 end
 
 function LibraryUI:Destroy()
