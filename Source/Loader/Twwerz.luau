@@ -1632,20 +1632,4 @@ end
 
 if getgenv then getgenv().VolvaraUI = Volvara end
 
-----------------------------------------------------------------------
--- Example (remove this block if you only want the library)
-----------------------------------------------------------------------
-local Window = Volvara:CreateWindow({ Title = "Volvara UI" })
-
---[[ Adding your own tab:
-
-local Main = Window:AddTab("Main")
-Main:Section("Example")
-Main:Toggle({ Name = "Feature", Flag = "main.feature", Callback = function(v) print(v) end })
-Main:Slider({ Name = "Amount", Min = 0, Max = 100, Default = 25, Flag = "main.amount" })
-Main:Button("Notify", function() Volvara:Notify({ Title = "Hello", Text = "It works" }) end)
-
-Anything with a Flag is saved/loaded by the Config tab automatically.
-]]
-
 return Volvara
