@@ -21,12 +21,11 @@ end
 ----------------------------------------------------------------------
 -- Services
 ----------------------------------------------------------------------
-local Players          = game:GetService("Players")
-local TweenService     = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService      = game:GetService("HttpService")
-local RunService       = game:GetService("RunService")
-local CoreGui          = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -245,12 +244,6 @@ end
 -- GUI root + notifications
 ----------------------------------------------------------------------
 local function getGuiParent()
-    if type(gethui) == "function" then
-        local ok, h = pcall(gethui)
-        if ok and h then return h end
-    end
-    local ok = pcall(function() return CoreGui.Name end)
-    if ok then return CoreGui end
     return LocalPlayer:WaitForChild("PlayerGui")
 end
 
@@ -264,7 +257,6 @@ local function ensureGui()
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
         DisplayOrder = 999,
     })
-    if syn and syn.protect_gui then pcall(syn.protect_gui, gui) end
     gui.Parent = getGuiParent()
     LibraryUI.Gui = gui
 
